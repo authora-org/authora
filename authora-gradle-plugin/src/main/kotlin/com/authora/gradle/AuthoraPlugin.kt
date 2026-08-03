@@ -40,17 +40,17 @@ abstract class AuthoraPlugin : Plugin<Project> {
             )
         }
 
-        val syncTask = project.tasks.register("authoraSyncToml") {
-            group = "authora"
-            description = "Copies Authora.toml into app assets for runtime access"
-            doLast {
+        val syncTask = project.tasks.register("authoraSyncToml") { task ->
+            task.group = "authora"
+            task.description = "Copies Authora.toml into app assets for runtime access"
+            task.doLast {
                 val assetsDir = project.file("src/main/assets")
                 assetsDir.mkdirs()
                 project.file("Authora.toml").copyTo(File(assetsDir, "Authora.toml"), overwrite = true)
             }
         }
-        project.tasks.matching { it.name == "preBuild" }.configureEach {
-            dependsOn(syncTask)
+        project.tasks.matching { it.name == "preBuild" }.configureEach { task ->
+            task.dependsOn(syncTask)
         }
     }
 
