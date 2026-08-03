@@ -5,9 +5,14 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import com.authora.core.config.FieldConfig
 import com.authora.core.config.FieldType
+import com.authora.core.i18n.AuthoraStrings
 import com.authora.core.validation.FieldValidator
+import com.authora.ui.i18n.LocalAuthoraStrings
 
-class DynamicFormState(val fields: List<FieldConfig>) {
+class DynamicFormState(
+    val fields: List<FieldConfig>,
+    private val strings: AuthoraStrings
+) {
     val values = mutableStateMapOf<String, String>().apply {
         fields.forEach { put(it.name, "") }
     }
@@ -21,7 +26,7 @@ class DynamicFormState(val fields: List<FieldConfig>) {
     fun validateAll(): Boolean {
         var isValid = true
         fields.forEach { field ->
-            val error = FieldValidator.validate(field, values[field.name].orEmpty())
+            val error = FieldValidator.validate(field, values[field.name].orEmpty(), strings)
             errors[field.name] = error
             if (error != null) isValid = false
         }
@@ -32,7 +37,7 @@ class DynamicFormState(val fields: List<FieldConfig>) {
             val passwordValue = values["password"].orEmpty()
             val confirmValue = values["confirm_password"].orEmpty()
             if (confirmValue != passwordValue) {
-                errors["confirm_password"] = "Passwords do not match"
+                errors["confirm_password"] = strings.validationConfirmPasswordMismatch
                 isValid = false
             }
         }
@@ -43,5 +48,6 @@ class DynamicFormState(val fields: List<FieldConfig>) {
 
 @Composable
 fun rememberDynamicFormState(fields: List<FieldConfig>): DynamicFormState {
-    return remember(fields) { DynamicFormState(fields) }
+    val strings = LocalAuthoraStrings.current
+    return remember(fields, strings) { DynamicFormState(fields, strings) }
 }
