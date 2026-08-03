@@ -7,6 +7,7 @@ import com.authora.auth.MfaMethod
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.mfa.FactorType
+import io.github.jan.supabase.auth.mfa.mfa
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.user.UserInfo
 import kotlinx.serialization.json.buildJsonObject
@@ -23,7 +24,7 @@ class SupabaseAuthoraProvider(
                 this.password = password
             }
 
-            val factorId = client.auth.mfa.verifiedFactors().firstOrNull { it.factorType == FactorType.TOTP }?.id
+            val factorId = client.auth.mfa.verifiedFactors.firstOrNull { it.factorType == FactorType.TOTP }?.factorId
             if (factorId != null) {
                 val challenge = client.auth.mfa.createChallenge(factorId)
                 return AuthResult.RequiresMfa(
