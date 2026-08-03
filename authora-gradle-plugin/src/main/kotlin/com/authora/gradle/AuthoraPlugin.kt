@@ -27,7 +27,7 @@ abstract class AuthoraPlugin : Plugin<Project> {
         }
 
         val runtimeVersion = AuthoraTomlManager.getString(tomlFile, "authora", "version") ?: AuthoraVersions.RUNTIME_DEFAULT
-        project.dependencies.add("implementation", "org.authora:authora-android:$runtimeVersion")
+        project.dependencies.add("implementation", "io.github.authora-org:authora-android:$runtimeVersion")
 
         when (val providerType = AuthoraTomlManager.getString(tomlFile, "auth.provider", "type")) {
             "firebase" -> applyFirebase(project)

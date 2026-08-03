@@ -7,7 +7,10 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-class AuthoraSessionStore(context: Context) {
+class AuthoraSessionStore(
+    context: Context,
+    prefsName: String = "authora_sessions"
+) {
 
     private val masterKey = MasterKey.Builder(context)
         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
@@ -15,7 +18,7 @@ class AuthoraSessionStore(context: Context) {
 
     private val prefs = EncryptedSharedPreferences.create(
         context,
-        "authora_sessions",
+        prefsName,
         masterKey,
         EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
@@ -63,11 +66,18 @@ class AuthoraSessionStore(context: Context) {
         prefs.edit().remove(KEY_SESSIONS).apply()
     }
 
+    fun isRememberLoginEnabled(): Boolean = prefs.getBoolean(KEY_REMEMBER_LOGIN, true)
+
+    fun setRememberLoginEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_REMEMBER_LOGIN, enabled).apply()
+    }
+
     private fun persist(sessions: List<AuthoraSession>) {
         prefs.edit().putString(KEY_SESSIONS, json.encodeToString(sessions)).apply()
     }
 
     private companion object {
         const val KEY_SESSIONS = "sessions"
+        const val KEY_REMEMBER_LOGIN = "remember_login"
     }
 }

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.authora.auth.AuthResult
 import com.authora.auth.AuthoraAuthProvider
+import com.authora.core.i18n.AuthoraStrings
 import com.authora.core.session.AuthoraSession
 import com.authora.core.session.AuthoraSessionStore
 import com.authora.ui.validation.AuthoraValidators
@@ -16,7 +17,8 @@ import kotlinx.coroutines.launch
 class SignUpViewModel(
     private val authProvider: AuthoraAuthProvider,
     private val sessionStore: AuthoraSessionStore,
-    private val providerType: String
+    private val providerType: String,
+    private val strings: AuthoraStrings
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SignUpUiState())
@@ -48,10 +50,10 @@ class SignUpViewModel(
 
     fun submit() {
         val state = _uiState.value
-        val fullNameError = AuthoraValidators.validateFullName(state.fullName)
-        val emailError = AuthoraValidators.validateEmail(state.email)
-        val passwordError = AuthoraValidators.validatePassword(state.password)
-        val confirmPasswordError = AuthoraValidators.validateConfirmPassword(state.password, state.confirmPassword)
+        val fullNameError = AuthoraValidators.validateFullName(state.fullName, strings)
+        val emailError = AuthoraValidators.validateEmail(state.email, strings)
+        val passwordError = AuthoraValidators.validatePassword(state.password, strings)
+        val confirmPasswordError = AuthoraValidators.validateConfirmPassword(state.password, state.confirmPassword, strings)
 
         if (fullNameError != null || emailError != null || passwordError != null || confirmPasswordError != null) {
             _uiState.update {

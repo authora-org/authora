@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.authora.auth.AuthoraAuthProvider
 import com.authora.core.session.AuthoraSessionStore
+import com.authora.ui.i18n.LocalAuthoraStrings
 import com.authora.ui.profile.ProfileCard
 
 @Composable
@@ -34,6 +35,7 @@ fun AccountScreen(
     onManageAccounts: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val strings = LocalAuthoraStrings.current
     val viewModel: AccountViewModel = viewModel(factory = AccountViewModelFactory(authProvider, sessionStore))
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -64,7 +66,7 @@ fun AccountScreen(
             Divider()
 
             ListItem(
-                headlineContent = { Text("Manage accounts") },
+                headlineContent = { Text(strings.accountManageAccounts) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { onManageAccounts() }
@@ -78,7 +80,7 @@ fun AccountScreen(
                 onClick = viewModel::signOut,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
             ) {
-                Text("Sign Out")
+                Text(strings.accountSignOut)
             }
         }
     }

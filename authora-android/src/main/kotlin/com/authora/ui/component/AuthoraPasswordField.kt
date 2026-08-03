@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import com.authora.ui.i18n.LocalAuthoraStrings
 
 @Composable
 fun AuthoraPasswordField(
@@ -25,6 +26,7 @@ fun AuthoraPasswordField(
     enabled: Boolean = true
 ) {
     var isVisible by remember { mutableStateOf(false) }
+    val strings = LocalAuthoraStrings.current
 
     AuthoraTextField(
         value = value,
@@ -39,7 +41,7 @@ fun AuthoraPasswordField(
             IconButton(onClick = { isVisible = !isVisible }) {
                 Icon(
                     imageVector = if (isVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-                    contentDescription = if (isVisible) "Hide password" else "Show password"
+                    contentDescription = if (isVisible) strings.passwordHide else strings.passwordShow
                 )
             }
         }

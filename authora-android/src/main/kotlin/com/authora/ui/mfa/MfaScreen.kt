@@ -27,6 +27,7 @@ import com.authora.auth.MfaMethod
 import com.authora.core.session.AuthoraSessionStore
 import com.authora.ui.component.AuthoraPrimaryButton
 import com.authora.ui.component.AuthoraTextField
+import com.authora.ui.i18n.LocalAuthoraStrings
 
 @Composable
 fun MfaScreen(
@@ -39,8 +40,9 @@ fun MfaScreen(
     onVerified: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val strings = LocalAuthoraStrings.current
     val viewModel: MfaViewModel = viewModel(
-        factory = MfaViewModelFactory(authProvider, sessionStore, challengeId, providerType)
+        factory = MfaViewModelFactory(authProvider, sessionStore, challengeId, providerType, strings)
     )
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -57,9 +59,9 @@ fun MfaScreen(
     }
 
     val description = when (method) {
-        MfaMethod.SMS -> "Enter the code we sent to ${maskedDestination ?: "your phone"}"
-        MfaMethod.EMAIL -> "Enter the code we sent to ${maskedDestination ?: "your email"}"
-        MfaMethod.TOTP -> "Enter the code from your authenticator app"
+        MfaMethod.SMS -> strings.mfaDescriptionSmsTemplate.format(maskedDestination.orEmpty())
+        MfaMethod.EMAIL -> strings.mfaDescriptionEmailTemplate.format(maskedDestination.orEmpty())
+        MfaMethod.TOTP -> strings.mfaDescriptionTotp
     }
 
     Scaffold(
@@ -72,7 +74,7 @@ fun MfaScreen(
                 .padding(24.dp),
             verticalArrangement = Arrangement.Center
         ) {
-            Text(text = "Verify Your Identity", style = MaterialTheme.typography.headlineMedium)
+            Text(text = strings.mfaTitle, style = MaterialTheme.typography.headlineMedium)
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -83,7 +85,7 @@ fun MfaScreen(
             AuthoraTextField(
                 value = uiState.code,
                 onValueChange = viewModel::onCodeChange,
-                label = "Verification Code",
+                label = strings.mfaCodeLabel,
                 errorText = uiState.codeError,
                 keyboardType = KeyboardType.NumberPassword
             )
@@ -91,7 +93,7 @@ fun MfaScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             AuthoraPrimaryButton(
-                text = "Verify",
+                text = strings.mfaVerifyButton,
                 onClick = viewModel::verify,
                 isLoading = uiState.isVerifying
             )
@@ -103,7 +105,7 @@ fun MfaScreen(
                 enabled = !uiState.isResending,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(if (uiState.isResending) "Resending..." else "Resend Code")
+                Text(if (uiState.isResending) strings.mfaResending else strings.mfaResendButton)
             }
         }
     }

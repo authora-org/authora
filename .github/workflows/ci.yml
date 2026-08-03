@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Grant execute permission for gradlew (plugin)
+        run: chmod +x authora-gradle-plugin/gradlew
+
+      - name: Build Authora Gradle Plugin
+        run: ./gradlew build
+        working-directory: authora-gradle-plugin
+
+      - name: Grant execute permission for gradlew (root)
+        run: chmod +x gradlew
+
+      - name: Build core, android and provider modules
+        run: ./gradlew build
+
+      - name: Run unit tests
+        run: ./gradlew test

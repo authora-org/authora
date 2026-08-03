@@ -2,6 +2,7 @@ package com.authora.gradle.tasks
 
 import com.authora.gradle.AuthoraConfigException
 import com.authora.gradle.AuthoraVersions
+import com.authora.gradle.migration.AuthoraMigrationRegistry
 import com.authora.gradle.toml.AuthoraTomlManager
 import com.authora.gradle.toml.TomlValue
 import org.gradle.api.DefaultTask
@@ -14,7 +15,7 @@ abstract class AuthoraUpgradeTask : DefaultTask() {
 
     init {
         group = "authora"
-        description = "Checks for and applies Authora version upgrades"
+        description = "Checks for and applies Authora version upgrades, running any required migrations"
     }
 
     @TaskAction
@@ -36,17 +37,45 @@ abstract class AuthoraUpgradeTask : DefaultTask() {
             return
         }
 
+        val migrations = AuthoraMigrationRegistry.pathFrom(currentVersion, latestVersion)
+
+        if (migrations.isNotEmpty()) {
+            val backupFile = project.file("Authora.toml.bak")
+            tomlFile.copyTo(backupFile, overwrite = true)
+            println("✔ Backed up Authora.toml to ${backupFile.name}")
+
+            migrations.forEach { migration ->
+                println("Applying migration ${migration.fromVersion} -> ${migration.toVersion}...")
+                try {
+                    migration.migrate(tomlFile)
+                } catch (e: Exception) {
+                    backupFile.copyTo(tomlFile, overwrite = true)
+                    throw AuthoraConfigException(
+                        "Migration ${migration.fromVersion} -> ${migration.toVersion} failed. Authora.toml was restored from backup.\nDetails: ${e.message}"
+                    )
+                }
+            }
+        }
+
         AuthoraTomlManager.replaceSection(
             tomlFile, "authora",
-            linkedMapOf("version" to TomlValue.Str(latestVersion))
+            linkedMapOf(
+                "version" to TomlValue.Str(latestVersion),
+                "language" to TomlValue.Str(
+                    AuthoraTomlManager.getString(tomlFile, "authora", "language") ?: "auto"
+                )
+            )
         )
 
         println("✔ Authora upgraded from $currentVersion to $latestVersion.")
+        if (migrations.isNotEmpty()) {
+            println("✔ ${migrations.size} migration(s) applied.")
+        }
         println("Re-run Gradle sync to apply the new version.")
     }
 
     private fun fetchLatestVersion(): String? {
-        val url = URL("https://search.maven.org/solrsearch/select?q=g:org.authora+AND+a:authora-android&rows=1&wt=json")
+        val url = URL("https://search.maven.org/solrsearch/select?q=g:io.github.authora-org+AND+a:authora-android&rows=1&wt=json")
         val connection = url.openConnection() as HttpURLConnection
         connection.connectTimeout = 5000
         connection.readTimeout = 5000

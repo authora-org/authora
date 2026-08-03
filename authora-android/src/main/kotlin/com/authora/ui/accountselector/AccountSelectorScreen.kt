@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.authora.core.session.AuthoraSessionStore
 import com.authora.ui.component.AuthoraAvatar
+import com.authora.ui.i18n.LocalAuthoraStrings
 
 @Composable
 fun AccountSelectorScreen(
@@ -33,6 +34,7 @@ fun AccountSelectorScreen(
     onAddAccount: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val strings = LocalAuthoraStrings.current
     val viewModel: AccountSelectorViewModel = viewModel(factory = AccountSelectorViewModelFactory(sessionStore))
     val uiState by viewModel.uiState.collectAsState()
 
@@ -44,7 +46,7 @@ fun AccountSelectorScreen(
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Switch Account") }) }
+        topBar = { TopAppBar(title = { Text(strings.accountSelectorTitle) }) }
     ) { padding ->
         LazyColumn(modifier = modifier.fillMaxSize().padding(padding)) {
             items(uiState.sessions, key = { it.userId }) { session ->
@@ -55,10 +57,10 @@ fun AccountSelectorScreen(
                     trailingContent = {
                         Row {
                             if (session.isActive) {
-                                Icon(imageVector = Icons.Filled.Check, contentDescription = "Active account")
+                                Icon(imageVector = Icons.Filled.Check, contentDescription = null)
                             }
                             IconButton(onClick = { viewModel.remove(session.userId) }) {
-                                Icon(imageVector = Icons.Filled.Close, contentDescription = "Remove account")
+                                Icon(imageVector = Icons.Filled.Close, contentDescription = null)
                             }
                         }
                     },
@@ -70,8 +72,10 @@ fun AccountSelectorScreen(
 
             item {
                 ListItem(
-                    headlineContent = { Text("Add account") },
-                    leadingContent = { Icon(imageVector = Icons.Filled.PersonAdd, contentDescription = null) },
+                    headlineContent = { Text(strings.accountSelectorAddAccount) },
+                    leadingContent = {
+                        Icon(imageVector = Icons.Filled.PersonAdd, contentDescription = null)
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { onAddAccount() }

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.authora.auth.AuthResult
 import com.authora.auth.AuthoraAuthProvider
+import com.authora.core.i18n.AuthoraStrings
 import com.authora.core.session.AuthoraSession
 import com.authora.core.session.AuthoraSessionStore
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +17,8 @@ class MfaViewModel(
     private val authProvider: AuthoraAuthProvider,
     private val sessionStore: AuthoraSessionStore,
     private val challengeId: String,
-    private val providerType: String
+    private val providerType: String,
+    private val strings: AuthoraStrings
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MfaUiState())
@@ -33,7 +35,7 @@ class MfaViewModel(
     fun verify() {
         val code = _uiState.value.code
         if (code.isBlank()) {
-            _uiState.update { it.copy(codeError = "Verification code is required") }
+            _uiState.update { it.copy(codeError = strings.mfaCodeRequired) }
             return
         }
 
@@ -57,7 +59,7 @@ class MfaViewModel(
                     it.copy(isVerifying = false, snackbarMessage = result.message)
                 }
                 is AuthResult.RequiresMfa -> _uiState.update {
-                    it.copy(isVerifying = false, snackbarMessage = "Verification code was incorrect. Please try again.")
+                    it.copy(isVerifying = false, snackbarMessage = strings.mfaIncorrectCode)
                 }
             }
         }
@@ -70,7 +72,7 @@ class MfaViewModel(
             _uiState.update {
                 it.copy(
                     isResending = false,
-                    snackbarMessage = if (success) "A new verification code was sent." else "Could not resend the code. Please try again."
+                    snackbarMessage = if (success) strings.mfaResendSuccess else strings.mfaResendFailure
                 )
             }
         }

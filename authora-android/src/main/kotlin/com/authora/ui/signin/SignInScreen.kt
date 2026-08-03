@@ -30,6 +30,7 @@ import com.authora.core.session.AuthoraSessionStore
 import com.authora.ui.component.AuthoraPasswordField
 import com.authora.ui.component.AuthoraPrimaryButton
 import com.authora.ui.component.AuthoraTextField
+import com.authora.ui.i18n.LocalAuthoraStrings
 
 @Composable
 fun SignInScreen(
@@ -41,8 +42,9 @@ fun SignInScreen(
     onMfaRequired: (challengeId: String, method: MfaMethod, maskedDestination: String?) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val strings = LocalAuthoraStrings.current
     val viewModel: SignInViewModel = viewModel(
-        factory = SignInViewModelFactory(authProvider, sessionStore, providerType)
+        factory = SignInViewModelFactory(authProvider, sessionStore, providerType, strings)
     )
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -78,14 +80,14 @@ fun SignInScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Center
         ) {
-            Text(text = "Sign In", style = MaterialTheme.typography.headlineMedium)
+            Text(text = strings.signInTitle, style = MaterialTheme.typography.headlineMedium)
 
             Spacer(modifier = Modifier.height(24.dp))
 
             AuthoraTextField(
                 value = uiState.email,
                 onValueChange = viewModel::onEmailChange,
-                label = "Email",
+                label = strings.emailLabel,
                 errorText = uiState.emailError,
                 keyboardType = KeyboardType.Email
             )
@@ -95,14 +97,14 @@ fun SignInScreen(
             AuthoraPasswordField(
                 value = uiState.password,
                 onValueChange = viewModel::onPasswordChange,
-                label = "Password",
+                label = strings.passwordLabel,
                 errorText = uiState.passwordError
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
             AuthoraPrimaryButton(
-                text = "Sign In",
+                text = strings.signInButton,
                 onClick = viewModel::submit,
                 isLoading = uiState.isLoading
             )
@@ -113,7 +115,7 @@ fun SignInScreen(
                 onClick = onNavigateToSignUp,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Don't have an account? Sign Up")
+                Text(strings.signInNoAccount)
             }
         }
     }

@@ -30,6 +30,7 @@ import com.authora.core.session.AuthoraSessionStore
 import com.authora.ui.component.AuthoraPasswordField
 import com.authora.ui.component.AuthoraPrimaryButton
 import com.authora.ui.component.AuthoraTextField
+import com.authora.ui.i18n.LocalAuthoraStrings
 
 @Composable
 fun SignUpScreen(
@@ -41,8 +42,9 @@ fun SignUpScreen(
     onMfaRequired: (challengeId: String, method: MfaMethod, maskedDestination: String?) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val strings = LocalAuthoraStrings.current
     val viewModel: SignUpViewModel = viewModel(
-        factory = SignUpViewModelFactory(authProvider, sessionStore, providerType)
+        factory = SignUpViewModelFactory(authProvider, sessionStore, providerType, strings)
     )
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -78,14 +80,14 @@ fun SignUpScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Center
         ) {
-            Text(text = "Sign Up", style = MaterialTheme.typography.headlineMedium)
+            Text(text = strings.signUpTitle, style = MaterialTheme.typography.headlineMedium)
 
             Spacer(modifier = Modifier.height(24.dp))
 
             AuthoraTextField(
                 value = uiState.fullName,
                 onValueChange = viewModel::onFullNameChange,
-                label = "Full Name",
+                label = strings.fullNameLabel,
                 errorText = uiState.fullNameError,
                 keyboardType = KeyboardType.Text
             )
@@ -95,7 +97,7 @@ fun SignUpScreen(
             AuthoraTextField(
                 value = uiState.email,
                 onValueChange = viewModel::onEmailChange,
-                label = "Email",
+                label = strings.emailLabel,
                 errorText = uiState.emailError,
                 keyboardType = KeyboardType.Email
             )
@@ -105,7 +107,7 @@ fun SignUpScreen(
             AuthoraPasswordField(
                 value = uiState.password,
                 onValueChange = viewModel::onPasswordChange,
-                label = "Password",
+                label = strings.passwordLabel,
                 errorText = uiState.passwordError
             )
 
@@ -114,14 +116,14 @@ fun SignUpScreen(
             AuthoraPasswordField(
                 value = uiState.confirmPassword,
                 onValueChange = viewModel::onConfirmPasswordChange,
-                label = "Confirm Password",
+                label = strings.confirmPasswordLabel,
                 errorText = uiState.confirmPasswordError
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
             AuthoraPrimaryButton(
-                text = "Sign Up",
+                text = strings.signUpButton,
                 onClick = viewModel::submit,
                 isLoading = uiState.isLoading
             )
@@ -132,7 +134,7 @@ fun SignUpScreen(
                 onClick = onNavigateToSignIn,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Already have an account? Sign In")
+                Text(strings.signUpHaveAccount)
             }
         }
     }
