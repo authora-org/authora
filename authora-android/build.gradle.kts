@@ -15,13 +15,13 @@ android {
         minSdk = 24
     }
 
+    buildFeatures {
+        compose = true
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    buildFeatures {
-        compose = true
     }
 
     kotlinOptions {
@@ -30,6 +30,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":authora-core"))
     implementation(platform("androidx.compose:compose-bom:2024.10.00"))
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
