@@ -1,3 +1,5 @@
+import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
+
 plugins {
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.kotlin.android) apply false
@@ -10,6 +12,16 @@ subprojects {
 
     afterEvaluate {
         extensions.findByType<com.vanniktech.maven.publish.MavenPublishBaseExtension>()?.apply {
+            if (plugins.hasPlugin("com.android.library")) {
+                configure(
+                    AndroidSingleVariantLibrary(
+                        variant = "release",
+                        sourcesJar = true,
+                        publishJavadocJar = false
+                    )
+                )
+            }
+
             publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL, automaticRelease = false)
             signAllPublications()
 

@@ -24,7 +24,7 @@ gradlePlugin {
 
     plugins {
         create("authoraAndroid") {
-            id = "com.authora.android"
+            id = "io.github.authora-org.android"
             implementationClass = "com.authora.gradle.AuthoraPlugin"
             displayName = "Authora Android Plugin"
             description = "Opinionated authentication framework plugin for Android"
