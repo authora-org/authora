@@ -1,17 +1,18 @@
 import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
+import com.vanniktech.maven.publish.MavenPublishBaseExtension
 
 plugins {
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.kotlin.serialization) apply false
-    id("com.vanniktech.maven.publish") version "0.29.0" apply false
+    id("com.vanniktech.maven.publish.base") version "0.29.0" apply false
 }
 
 subprojects {
-    apply(plugin = "com.vanniktech.maven.publish")
+    apply(plugin = "com.vanniktech.maven.publish.base")
 
     afterEvaluate {
-        extensions.findByType<com.vanniktech.maven.publish.MavenPublishBaseExtension>()?.apply {
+        extensions.findByType<MavenPublishBaseExtension>()?.apply {
             if (plugins.hasPlugin("com.android.library")) {
                 configure(
                     AndroidSingleVariantLibrary(
