@@ -5,20 +5,12 @@ plugins {
 }
 
 fun resolveGitVersion(): String {
-    return try {
-        val process = ProcessBuilder("git", "describe", "--tags", "--exact-match")
-            .redirectErrorStream(true)
-            .start()
-        val output = process.inputStream.bufferedReader().readText().trim()
-        process.waitFor()
-        if (process.exitValue() == 0 && output.startsWith("v")) {
-            output.removePrefix("v")
-        } else {
-            "0.0.0-SNAPSHOT"
-        }
-    } catch (e: Exception) {
-        "0.0.0-SNAPSHOT"
-    }
+    val output = providers.exec {
+        commandLine("git", "describe", "--tags", "--exact-match")
+        isIgnoreExitValue = true
+    }.standardOutput.asText.get().trim()
+
+    return if (output.startsWith("v")) output.removePrefix("v") else "0.0.0-SNAPSHOT"
 }
 
 group = "io.github.authora-org"
