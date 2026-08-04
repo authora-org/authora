@@ -17,7 +17,7 @@ Authora does not give you dozens of ways to wire up auth. It gives you the right
 
    ```kotlin
    plugins {
-       id("com.authora.android") version "0.1.0"
+       id("io.github.authora-org.android") version "0.1.0"
    }
    ```
 

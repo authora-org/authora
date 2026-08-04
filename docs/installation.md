@@ -46,7 +46,7 @@ app/build.gradle.kts:
 plugins {
     id("com.android.application")
     kotlin("android")
-    id("com.authora.android") version "0.1.0"
+    id("io.github.authora-org.android") version "0.1.0"
 }
 
 android {
