@@ -4,8 +4,25 @@ plugins {
     id("com.gradle.plugin-publish") version "1.3.0"
 }
 
+fun resolveGitVersion(): String {
+    return try {
+        val process = ProcessBuilder("git", "describe", "--tags", "--exact-match")
+            .redirectErrorStream(true)
+            .start()
+        val output = process.inputStream.bufferedReader().readText().trim()
+        process.waitFor()
+        if (process.exitValue() == 0 && output.startsWith("v")) {
+            output.removePrefix("v")
+        } else {
+            "0.0.0-SNAPSHOT"
+        }
+    } catch (e: Exception) {
+        "0.0.0-SNAPSHOT"
+    }
+}
+
 group = "io.github.authora-org"
-version = "0.1.0"
+version = resolveGitVersion()
 
 repositories {
     google()

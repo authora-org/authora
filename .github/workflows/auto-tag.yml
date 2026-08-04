@@ -5,16 +5,14 @@ on:
     workflows: ["CI"]
     types: [completed]
 
-permissions:
-  contents: write
-  actions: read
-
 jobs:
   tag:
     if: >
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
@@ -34,34 +32,8 @@ jobs:
             echo "should_release=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Check if latest tag already published successfully
-        if: steps.check.outputs.should_release == 'true'
-        id: gate
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          latest_tag=$(git tag --list 'v*' --sort=-v:refname | head -n 1)
-
-          if [ -z "$latest_tag" ]; then
-            echo "No previous tag found, proceeding."
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          conclusion=$(gh run list --repo "${{ github.repository }}" --workflow=publish.yml --branch "$latest_tag" --json conclusion --jq '.[0].conclusion // "none"')
-
-          echo "Latest tag: $latest_tag"
-          echo "Its publish workflow conclusion: $conclusion"
-
-          if [ "$conclusion" = "success" ]; then
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::Tag $latest_tag has not been published successfully yet (conclusion: $conclusion). Holding off on creating a new tag until it is."
-          fi
-
       - name: Determine next version
-        if: steps.check.outputs.should_release == 'true' && steps.gate.outputs.ready == 'true'
+        if: steps.check.outputs.should_release == 'true'
         id: version
         run: |
           latest_tag=$(git tag --list 'v*' --sort=-v:refname | head -n 1)
@@ -79,7 +51,7 @@ jobs:
           echo "new_tag=$new_tag" >> "$GITHUB_OUTPUT"
 
       - name: Create and push tag
-        if: steps.check.outputs.should_release == 'true' && steps.gate.outputs.ready == 'true'
+        if: steps.check.outputs.should_release == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

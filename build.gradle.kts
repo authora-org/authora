@@ -1,6 +1,25 @@
 import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
 import com.vanniktech.maven.publish.MavenPublishBaseExtension
 
+fun resolveGitVersion(): String {
+    return try {
+        val process = ProcessBuilder("git", "describe", "--tags", "--exact-match")
+            .redirectErrorStream(true)
+            .start()
+        val output = process.inputStream.bufferedReader().readText().trim()
+        process.waitFor()
+        if (process.exitValue() == 0 && output.startsWith("v")) {
+            output.removePrefix("v")
+        } else {
+            "0.0.0-SNAPSHOT"
+        }
+    } catch (e: Exception) {
+        "0.0.0-SNAPSHOT"
+    }
+}
+
+val resolvedVersion = resolveGitVersion()
+
 plugins {
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.kotlin.android) apply false
@@ -9,6 +28,8 @@ plugins {
 }
 
 subprojects {
+    version = resolvedVersion
+
     apply(plugin = "com.vanniktech.maven.publish.base")
 
     afterEvaluate {

@@ -1,0 +1,17 @@
+name: Notify Documentation
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Notify authora.github.io
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.DOCS_REPO_TOKEN }}
+          repository: authora-org/authora.github.io
+          event-type: authora-release
